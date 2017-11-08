@@ -1,0 +1,79 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+namespace LongestWord
+{
+    internal class Program
+    {
+        public static List<string> LongestWords(string[] listOfWords)
+        {
+            if (listOfWords == null) throw new ArgumentException("listOfWords");
+            var sortedWords = listOfWords.OrderByDescending(word => word.Length).ToList();
+            var dict = new HashSet<string>(sortedWords);
+            var Words = new List<string>();
+            foreach (var word in sortedWords)
+            {
+                if (isWords(word, dict))
+                {
+                    Words.Add(word);
+                }
+            }
+            return Words;
+        }
+
+        private static bool isWords(string word, HashSet<string> dict)
+        {
+            if (string.IsNullOrEmpty(word)) return false;
+
+            if (word.Length == 1)
+            {
+                if (dict.Contains(word)) return true;
+                else return false;
+            }
+            foreach (var pair in generatePairs(word))
+            {
+                if (dict.Contains(pair.Item1))
+                {
+                    if (dict.Contains(pair.Item2))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return isWords(pair.Item2, dict);
+                    }
+                }
+            }
+            return false;
+        }
+
+        private static List<Tuple<string, string>> generatePairs(string word)
+        {
+            var output = new List<Tuple<string, string>>();
+            for (int i = 1; i < word.Length; i++)
+            {
+                output.Add(Tuple.Create(word.Substring(0, i), word.Substring(i)));
+            }
+
+            return output;
+        }
+
+        private static void Main(string[] args)
+        {
+            string[] listOfWords = File.ReadAllLines("C:\\Users\\nelaval\\Desktop\\NET Test 00.txt");
+            List<string> Words = LongestWords(listOfWords);
+            Words = Words.OrderBy(s => s.Length).ToList();
+            Console.WriteLine("------- 1st Longest Word --------");
+            Console.WriteLine(Words[Words.Count - 1] + " - " + Words[Words.Count - 1].Length + " letters");
+            Console.WriteLine("\n");
+            Console.WriteLine("------- 2nd Longest Word --------");
+            Console.WriteLine(Words[Words.Count - 2] + " - " + Words[Words.Count - 2].Length + " letters");
+            Console.WriteLine("\n");
+            Console.WriteLine("------- Total Count of Words ---------");
+            Console.WriteLine(Words.Count);
+            Console.ReadLine();
+        }
+    }
+}
